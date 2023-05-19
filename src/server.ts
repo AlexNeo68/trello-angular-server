@@ -14,6 +14,7 @@ import jwt from "jsonwebtoken";
 import { secret } from "./config";
 import UserModel from "./models/user";
 import { createColumn, getColumns } from "./controllers/columns";
+import { createTask, getTasks } from "./controllers/tasks";
 
 const app = express();
 
@@ -47,10 +48,12 @@ app.get("/api/boards", auth, boardsController.getBoards);
 app.get("/api/boards/:boardId", auth, boardsController.getBoard);
 app.get("/api/boards/:boardId/columns", auth, getColumns);
 app.post("/api/boards", auth, boardsController.createBoard);
+app.get("/api/boards/:boardId/tasks", auth, getTasks);
 
 io.use(async (socket: Socket, next) => {
   try {
     const token = (socket.handshake.auth.token as string) ?? "";
+    console.log(token);
 
     const data = jwt.verify(token.split(" ")[1], secret) as {
       id: string;
@@ -75,6 +78,9 @@ io.use(async (socket: Socket, next) => {
   });
   socket.on(SocketEventName.columnsCreate, (data) => {
     createColumn(io, socket, data);
+  });
+  socket.on(SocketEventName.tasksCreate, (data) => {
+    createTask(io, socket, data);
   });
 });
 
