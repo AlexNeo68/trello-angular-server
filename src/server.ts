@@ -82,6 +82,9 @@ io.use(async (socket: Socket, next) => {
   socket.on(SocketEventName.tasksCreate, (data) => {
     createTask(io, socket, data);
   });
+  socket.on(SocketEventName.boardsUpdate, (data) => {
+    boardsController.updateBoard(io, socket, data);
+  });
 });
 
 mongoose.connect("mongodb://localhost:27017/eltrello").then(() => {

@@ -3,6 +3,8 @@ import { RequestExpressInterface } from "../types/request-express.interface";
 import Board from "../models/board";
 import { Server } from "socket.io";
 import { Socket } from "../types/socket.interface";
+import { SocketEventName } from "../types/socket-event-name.enum";
+import { getErrorMessage } from "../helpers";
 
 export const getBoards = async (
   req: RequestExpressInterface,
@@ -66,4 +68,24 @@ export const leaveBoard = (
 ) => {
   console.log("Server socket leave board", data.boardId);
   socket.leave(data.boardId);
+};
+
+export const updateBoard = async (
+  io: Server,
+  socket: Socket,
+  data: { boardId: string; fields: { title: string } }
+) => {
+  try {
+    if (!socket.user) {
+      socket.emit(SocketEventName.boardsUpdateFailure, "User is unauthorized");
+    }
+    const updatedBoard = await Board.findByIdAndUpdate(
+      data.boardId,
+      data.fields,
+      { new: true }
+    );
+    io.to(data.boardId).emit(SocketEventName.boardsUpdateSuccess, updatedBoard);
+  } catch (error) {
+    socket.emit(SocketEventName.boardsUpdateFailure, getErrorMessage(error));
+  }
 };
