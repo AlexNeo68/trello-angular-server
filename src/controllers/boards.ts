@@ -89,3 +89,21 @@ export const updateBoard = async (
     socket.emit(SocketEventName.boardsUpdateFailure, getErrorMessage(error));
   }
 };
+
+export const deleteBoard = async (
+  io: Server,
+  socket: Socket,
+  data: { boardId: string }
+) => {
+  try {
+    if (!socket.user) {
+      socket.emit(SocketEventName.boardsDeleteFailure, "User is unauthorized");
+    }
+    await Board.deleteOne({
+      _id: data.boardId,
+    });
+    io.to(data.boardId).emit(SocketEventName.boardsDeleteSuccess);
+  } catch (error) {
+    socket.emit(SocketEventName.boardsDeleteFailure, getErrorMessage(error));
+  }
+};

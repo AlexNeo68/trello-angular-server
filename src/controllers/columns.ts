@@ -42,3 +42,23 @@ export const createColumn = async (
     socket.emit(SocketEventName.columnsCreateFailure, getErrorMessage(err));
   }
 };
+
+export const deleteColumn = async (
+  io: Server,
+  socket: Socket,
+  data: { boardId: string; columnId: string }
+) => {
+  try {
+    if (!socket.user) {
+      socket.emit(SocketEventName.columnsDeleteFailure, "Error Authentication");
+      return;
+    }
+    await ColumnModel.deleteOne({ _id: data.columnId });
+    io.to(data.boardId).emit(
+      SocketEventName.columnsDeleteSuccess,
+      data.columnId
+    );
+  } catch (err) {
+    socket.emit(SocketEventName.columnsDeleteFailure, getErrorMessage(err));
+  }
+};
