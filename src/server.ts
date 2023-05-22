@@ -13,7 +13,12 @@ import { Socket } from "./types/socket.interface";
 import jwt from "jsonwebtoken";
 import { secret } from "./config";
 import UserModel from "./models/user";
-import { createColumn, deleteColumn, getColumns } from "./controllers/columns";
+import {
+  createColumn,
+  deleteColumn,
+  getColumns,
+  updateColumn,
+} from "./controllers/columns";
 import { createTask, getTasks } from "./controllers/tasks";
 
 const app = express();
@@ -78,6 +83,9 @@ io.use(async (socket: Socket, next) => {
   });
   socket.on(SocketEventName.columnsCreate, (data) => {
     createColumn(io, socket, data);
+  });
+  socket.on(SocketEventName.columnsUpdate, (data) => {
+    updateColumn(io, socket, data);
   });
   socket.on(SocketEventName.columnsDelete, (data) => {
     deleteColumn(io, socket, data);

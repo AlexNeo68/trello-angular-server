@@ -43,6 +43,29 @@ export const createColumn = async (
   }
 };
 
+export const updateColumn = async (
+  io: Server,
+  socket: Socket,
+  data: { boardId: string; columnId: string; fields: { title: string } }
+) => {
+  try {
+    if (!socket.user) {
+      socket.emit(SocketEventName.columnsUpdateFailure, "User is unauthorized");
+    }
+    const updatedColumn = await ColumnModel.findByIdAndUpdate(
+      data.columnId,
+      data.fields,
+      { new: true }
+    );
+    io.to(data.boardId).emit(
+      SocketEventName.columnsUpdateSuccess,
+      updatedColumn
+    );
+  } catch (error) {
+    socket.emit(SocketEventName.columnsUpdateFailure, getErrorMessage(error));
+  }
+};
+
 export const deleteColumn = async (
   io: Server,
   socket: Socket,
