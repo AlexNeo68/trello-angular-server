@@ -19,7 +19,12 @@ import {
   getColumns,
   updateColumn,
 } from "./controllers/columns";
-import { createTask, getTasks } from "./controllers/tasks";
+import {
+  createTask,
+  deleteTask,
+  getTasks,
+  updateTask,
+} from "./controllers/tasks";
 
 const app = express();
 
@@ -90,9 +95,19 @@ io.use(async (socket: Socket, next) => {
   socket.on(SocketEventName.columnsDelete, (data) => {
     deleteColumn(io, socket, data);
   });
+
   socket.on(SocketEventName.tasksCreate, (data) => {
     createTask(io, socket, data);
   });
+
+  socket.on(SocketEventName.tasksUpdate, (data) => {
+    updateTask(io, socket, data);
+  });
+
+  socket.on(SocketEventName.tasksDelete, (data) => {
+    deleteTask(io, socket, data);
+  });
+
   socket.on(SocketEventName.boardsUpdate, (data) => {
     boardsController.updateBoard(io, socket, data);
   });
